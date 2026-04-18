@@ -24,10 +24,10 @@ class QuadQf1:
         n = len(self.starting_point)
 
         if value:
-            self.value = 0.5 * sum(np.arrange(1, n + 1) * np.square(self.starting_point)) - self.starting_point[-1]
+            self.value = 0.5 * sum(np.arange(1, n + 1) * np.square(self.starting_point)) - self.starting_point[-1]
 
         if gradient:
-            self.gradient = np.arrange(1, n + 1) * self.starting_point
+            self.gradient = np.arange(1, n + 1) * self.starting_point
             self.gradient[-1] -= 1
 
         if hessian:
@@ -62,10 +62,10 @@ class Quad_Qf2:
         n = len(self.starting_point)
 
         if value:
-            self.value = 0.5 * sum(np.arrange(1, n + 1) * np.square(np.square(self.starting_point) - 1)) - self.starting_point[-1]
+            self.value = 0.5 * sum(np.arange(1, n + 1) * np.square(np.square(self.starting_point) - 1)) - self.starting_point[-1]
 
         if gradient:
-            self.gradient = 2 * np.arrange(1, n + 1) * self.starting_point * (np.square(self.starting_point) - 1)
+            self.gradient = 2 * np.arange(1, n + 1) * self.starting_point * (np.square(self.starting_point) - 1)
             self.gradient[-1] += -1
 
         if hessian:
@@ -136,10 +136,10 @@ class Diagonal_1:
         n = len(self.starting_point)
 
         if value:
-            self.value = sum(np.exp(self.starting_point) - np.arrange(1, n + 1) * self.starting_point)
+            self.value = sum(np.exp(self.starting_point) - np.arange(1, n + 1) * self.starting_point)
 
         if gradient:
-            self.gradient = np.exp(self.starting_point) - np.arrange(1, n + 1)
+            self.gradient = np.exp(self.starting_point) - np.arange(1, n + 1)
 
         if hessian:
             self.hessian = np.diag(np.exp(self.starting_point))
@@ -173,18 +173,18 @@ class Almost_Perturbed_Quardratic:
         n = len(self.starting_point)
 
         if value:
-            self.value = sum(np.arrange(1, n + 1) * np.square(self.starting_point)) + 1/100 * np.square(self.starting_point[0] + self.set_starting_point[-1])
+            self.value = sum(np.arange(1, n + 1) * np.square(self.starting_point)) + 1/100 * np.square(self.starting_point[0] + self.set_starting_point[-1])
 
         if gradient:
-            self.gradient = 2 * self.starting_point * np.arrange(1, n + 1)
+            self.gradient = 2 * self.starting_point * np.arange(1, n + 1)
             self.gradient[0] += 1/100 * 2 * (self.starting_point[0] + self.starting_point[-1])
             self.gradient[-1] += 1/100 * 2 * (self.starting_point[0] + self.starting_point[-1])
         if hessian:
-            self.hessian = np.diag( 2 * np.arrange(1, n + 1)) 
+            self.hessian = np.diag( 2 * np.arange(1, n + 1)) 
             self.hessian[0,0] += 2/100
-            self.hessian[0, n-1] += 2 * np.arrange(1, n + 1) + 2/100
+            self.hessian[0, n-1] += 2 * np.arange(1, n + 1) + 2/100
             self.hessian[n-1, n-1] += 2/100
-            self.hessian[n-1, 0] += 2 * np.arrange(1, n + 1) + 2/100
+            self.hessian[n-1, 0] += 2 * np.arange(1, n + 1) + 2/100
 
         return self.value, self.gradient, self.hessian
 
