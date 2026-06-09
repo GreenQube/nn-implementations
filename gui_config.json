@@ -7,7 +7,7 @@
         "opt_method": {"row": 4, "column": 0, "padx": 10, "pady": 5},
         "line_search_container": {"row": 5, "column": 0, "padx": 10, "pady": 10, "sticky":"ew"},
         "stop_condition_container": {"row": 6, "column": 0, "padx": 10, "pady": 10, "sticky":"ew"},
-        "results_container": {"row": 6, "column": 2, "padx": 10, "pady": 10, "sticky":"ew"},
+        "results_container": {"row": 7, "column": 2, "padx": 10, "pady": 10, "sticky":"ew"},
         "function_value": {"row": 1, "column": 2, "padx": 10, "pady": 5},
         "gradient_value": {"row": 1, "column": 3, "padx": 10, "pady": 5}
     },

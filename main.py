@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 import numpy as np
-from gui.gui import combobox_row, insert_row, gui_container
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from gui.gui import combobox_row, insert_row, gui_container, label_row
 from utils import utils
 
 
@@ -44,7 +46,6 @@ class OptimizationGUI:
             grid_params=gui_config["root"]["opt_method"],
         )
         self.method_dropdown.bind("<<ComboboxSelected>>", self.update_line_search_params) # 
-
 
         # Starting Point
         self.starting_point_label, self.starting_point_entry = insert_row(
@@ -98,10 +99,6 @@ class OptimizationGUI:
             grid_params=gui_config["line_search_container"]["rho"],
         )
 
-        # Function Value per Iteration Label
-        self.function_plot_label = tk.Label(root, text="Function Value:")
-        self.function_plot_label.grid(row=1, column=2, sticky=tk.W, padx=10, pady=5)
-
         # Stopping Condition Params Container
         stopping_condition_frame = gui_container(
             root, 
@@ -122,7 +119,7 @@ class OptimizationGUI:
             grid_params=gui_config["stop_condition_container"]["epsilon"],
             initial_value="1e-6"
         )
-        self.start_point_label, self.start_point_entry = insert_row(
+        self.work_precision_label, self.work_precision_entry = insert_row(
             root=stopping_condition_frame, 
             label="Work Precision:", 
             grid_params=gui_config["stop_condition_container"]["work_precision"],
@@ -137,15 +134,19 @@ class OptimizationGUI:
         )
 
         # Set the Method and function rows
-        self.method_result_label = tk.Label(results_frame, text="Method:")
-        self.method_result_label.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
-        self.method_result_value = tk.Label(results_frame, text="")
-        self.method_result_value.grid(row=0, column=1, padx=5, pady=5)
-
-        self.function_result_label = tk.Label(results_frame, text="Function:")
-        self.function_result_label.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
-        self.function_result_value = tk.Label(results_frame, text="")
-        self.function_result_value.grid(row=1, column=1, padx=5, pady=5)
+        self.method_result_label, self.method_result_value = insert_row(
+            root=stopping_condition_frame, 
+            label_1="Method:",
+            label_2="",
+            grid_params=gui_config["results_container"]["method_result"],
+        )
+        
+        self.function_result_label, self.function_result_value = insert_row(
+            root=stopping_condition_frame, 
+            label_1="Function:",
+            label_2="",
+            grid_params=gui_config["results_container"]["function_result"],
+        )
 
         # Set other results box
         self.fmin_label, self.fmin_entry = insert_row(
@@ -189,26 +190,38 @@ class OptimizationGUI:
             grid_params=gui_config["results_container"]["cpu_time"],
         )
 
-        # NOTE TODO
         # ################### PLOTING ###################
-        # # Plot for Function Value per Iteration
-        # self.function_fig = Figure(figsize=(5, 4), dpi=100)
-        # self.function_ax = self.function_fig.add_subplot(111)
-        # self.function_canvas = FigureCanvasTkAgg(self.function_fig, master=root)
-        # self.function_canvas.get_tk_widget().grid(row=5, column=2, padx=10, pady=5)
-
-        # # Gradient Value per Iteration Label
-        # self.gradient_plot_label = tk.Label(root, text="Gradient Value:")
-        # self.gradient_plot_label.grid(row=1, column=3, sticky=tk.W, padx=10, pady=5)
-
-        # # Plot for Gradient Value per Iteration
-        # self.gradient_fig = Figure(figsize=(5, 4), dpi=100)
-        # self.gradient_ax = self.gradient_fig.add_subplot(111)
-        # self.gradient_canvas = FigureCanvasTkAgg(self.gradient_fig, master=root)
-        # self.gradient_canvas.get_tk_widget().grid(row=5, column=3, padx=10, pady=5)
+        # Plot for Function Value per Iteration
         
-        ################### PLOTING ###################
-        # NOTE TODO END!
+        # Function Value per Iteration Label
+        self.function_plot_label = tk.Label(root, text="Function Value:")
+        self.function_plot_label.grid(row=1, column=2, sticky=tk.W, padx=10, pady=5)
+        
+        self.function_fig = Figure(figsize=(5, 4), dpi=100)
+        self.function_ax = self.function_fig.add_subplot(111)
+        self.function_canvas = FigureCanvasTkAgg(self.function_fig, master=root)
+        self.function_canvas.get_tk_widget().grid(row=5, column=2, padx=10, pady=5)
+        ###############    TOOLBAR    ###############
+        toolbar_frame_function = tk.Frame(root) 
+        toolbar_frame_function.grid(row=6, column=2, padx=10, pady=5, sticky="nw")  # row was 21
+        function_toolbar = NavigationToolbar2Tk(self.function_canvas, toolbar_frame_function)
+
+        # Gradient Value per Iteration Label
+        self.gradient_plot_label = tk.Label(root, text="Gradient Value:")
+        self.gradient_plot_label.grid(row=1, column=3, sticky=tk.W, padx=10, pady=5)
+
+        # Plot for Gradient Value per Iteration
+        self.gradient_fig = Figure(figsize=(5, 4), dpi=100)
+        self.gradient_ax = self.gradient_fig.add_subplot(111)
+        self.gradient_canvas = FigureCanvasTkAgg(self.gradient_fig, master=root)
+        self.gradient_canvas.get_tk_widget().grid(row=5, column=3, padx=10, pady=5)
+        
+        ###############    TOOLBAR    ###############
+        toolbar_frame_gradient = tk.Frame(root) 
+        # toolbar_frame_gradient.grid(row=6, column=3)  # row was 21
+        toolbar_frame_gradient.grid(row=6, column=3, padx=10, pady=5, sticky="nw")  # row was 21
+        gradient_toolbar = NavigationToolbar2Tk(self.gradient_canvas, toolbar_frame_gradient)
+        
 
         # ###### FIND MINIMUM BUTTON TODO.#######
         # # Add Find Minimum Button
@@ -242,8 +255,10 @@ class OptimizationGUI:
 
     def update_line_search_params(self, event):
         return
-        
+        selected_method_group = self.method_group_dropdown.get()
         selected_method = self.method_dropdown.get()
+        self.line_search_dropdown['values'] = self.optimization_methods[selected_method_group][1][selected_method][1]
+        self.line_search_dropdown.current(0)
 
         if selected_method == "GradientLineSearch":
             # Populate Line Search Dropdown and enable parameters

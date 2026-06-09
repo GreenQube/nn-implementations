@@ -68,11 +68,44 @@ def insert_row(
     
     return gui_label, insert_value
 
+def label_row(
+    root, # root or frame
+    label_1:str, 
+    label_2:str, 
+    grid_params:dict[str, str],
+):
+    """NOTE."""
+    if "sticky" not in grid_params:
+        grid_params["sticky"] = tk.W
+    grid_2_params = {}
+    for key, value in grid_params.items():
+        if key == "column":
+            grid_2_params[key] = value + 1
+        elif key == "sticky":
+            pass
+        else:
+            grid_2_params[key] = value
+            
+    # Set Lable
+    gui_label_1 = tk.Label(root, text=label_1)
+    gui_label_1.grid(**grid_params)
+    gui_label_2 = tk.Label(root, text=label_2)
+    gui_label_2.grid(**grid_2_params)
+    
+    return gui_label_1, gui_label_2
+
 def set_row_value(row, value):
     """NOTE."""
+    if type(value) != str:
+        str_value = str(value)
+    else:
+        str_value = value
     row.delete(0, tk.END)
-    row.insert(0, value)
+    row.insert(0, str_value)
     return row
+
+def set_multiple_row_values(row_value_pairs: list[tuple]):
+    return [set_row_value(rv_pair[0], rv_pair[1]) for rv_pair in row_value_pairs]
 
 def graph_plot():
     """TODO."""
