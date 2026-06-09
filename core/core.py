@@ -38,6 +38,7 @@ class LineSearchMethod(OptimizationMethod):
             val, grad, _ = eval_function.calculate(
                 value=True, gradient=True, hessian=False
             )
+            self.evaluation_numbers = list(map(add, self.evaluation_numbers, [1, 1, 0]))
 
             function_values.append(val)
             gradient_values.append(np.linalg.norm(grad))
@@ -67,23 +68,17 @@ class LineSearchMethod(OptimizationMethod):
         # END OF PROCESS
         cpu_time = time.process_time() - start_time
         fmin, _, _ = eval_function.calculate(value=True, gradient=True, hessian=False)
-        result_metrics = {
+        self.evaluation_numbers[0] += 1  # Increase value evaluation num
+        return {
             "current_point": eval_function.get_starting_point(),
             "fmin": fmin,
             "iteration": iter,
+            "function_values": function_values,
+            "gradient_values": gradient_values,
+            "grad_norm": gradient_values[iter],
+            "eval_numbers": self.evaluation_numbers,
+            "exec_time": cpu_time,
         }
-
-        # Return results, including evaluations
-        # return (
-        #     x,
-        #     fmin,
-        #     it,
-        #     function_values,
-        #     gradient_values,
-        #     grad_norm,
-        #     evaluation_numbers,
-        #     cpu_time,
-        # )
 
 
 # test functions class
