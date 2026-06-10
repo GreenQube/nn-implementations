@@ -8,11 +8,19 @@ from utils import utils
 
 
 class OptimizationGUI:
-    def __init__(self, root, gui_config, test_functions, optimization_methods):
+    def __init__(
+        self,
+        root,
+        gui_config,
+        test_functions,
+        optimization_methods,
+        line_search_methods,
+    ):
         self.root = root
         self.gui_config = gui_config
         self.test_functions = test_functions
         self.optimization_methods = optimization_methods
+        self.line_search_methods = line_search_methods
 
         self.test_function = None
         self.optimization_method = None
@@ -49,7 +57,7 @@ class OptimizationGUI:
         )
         self.method_dropdown.bind(
             "<<ComboboxSelected>>", self.update_line_search_params
-        )  #
+        )
 
         # Starting Point
         self.starting_point_label, self.starting_point_entry = insert_row(
@@ -68,44 +76,24 @@ class OptimizationGUI:
             0, str(self.initial_variables_no)
         )  # Set initial to 100
 
+        ##############################################################################################
         # Line Search Params Container
-        line_search_frame = gui_container(
+        self.line_search_frame = gui_container(
             root,
             label="Line Search Params",
             grid_params=gui_config["root"]["line_search_container"],
         )
+        # Checkbox
+        self.ls_check_var = tk.BooleanVar()
+        self.ls_checkbox = tk.Checkbutton(
+            self.line_search_frame,
+            text="Show Params",
+            variable=self.ls_check_var,
+            command=self.toggle_ls_parameters,
+        )
+        self.ls_checkbox.grid(row=0, column=0, padx=10, pady=10)
 
-        self.line_search_label, self.line_search_dropdown = combobox_row(
-            root=line_search_frame,
-            label="Select Line Search:",
-            grid_params=gui_config["line_search_container"]["select"],
-        )
-        # Line search parameters
-        self.beta_label, self.beta_entry = insert_row(
-            root=line_search_frame,
-            label="Beta:",
-            grid_params=gui_config["line_search_container"]["beta"],
-        )
-        self.start_point_label, self.start_point_entry = insert_row(
-            root=line_search_frame,
-            label="Start Point:",
-            grid_params=gui_config["line_search_container"]["starting_point"],
-        )
-        self.m_label, self.m_entry = insert_row(
-            root=line_search_frame,
-            label="M:",
-            grid_params=gui_config["line_search_container"]["m"],
-        )
-        self.sigma_label, self.sigma_entry = insert_row(
-            root=line_search_frame,
-            label="Sigma:",
-            grid_params=gui_config["line_search_container"]["sigma"],
-        )
-        self.rho_label, self.rho_entry = insert_row(
-            root=line_search_frame,
-            label="Rho:",
-            grid_params=gui_config["line_search_container"]["rho"],
-        )
+        ##############################################################################################
 
         # Stopping Condition Params Container
         stopping_condition_frame = gui_container(
@@ -243,6 +231,58 @@ class OptimizationGUI:
         )
         self.find_min_button.grid(row=8, column=0, padx=10, pady=10)
 
+    def toggle_ls_parameters(self):
+        # TODO. MAKE THIS A LOT BETTER, READABLE AND NICER
+        # Make them appear and dissapear
+        if self.ls_check_var.get():
+            self.line_search_label, self.line_search_dropdown = combobox_row(
+                root=self.line_search_frame,
+                label="Select Line Search:",
+                grid_params=self.gui_config["line_search_container"]["select"],
+            )
+            # Line search parameters
+            self.beta_label, self.beta_entry = insert_row(
+                root=self.line_search_frame,
+                label="Beta:",
+                grid_params=self.gui_config["line_search_container"]["beta"],
+            )
+            self.start_point_label, self.start_point_entry = insert_row(
+                root=self.line_search_frame,
+                label="Start Point:",
+                grid_params=self.gui_config["line_search_container"]["starting_point"],
+            )
+            self.m_label, self.m_entry = insert_row(
+                root=self.line_search_frame,
+                label="M:",
+                grid_params=self.gui_config["line_search_container"]["m"],
+            )
+            self.sigma_label, self.sigma_entry = insert_row(
+                root=self.line_search_frame,
+                label="Sigma:",
+                grid_params=self.gui_config["line_search_container"]["sigma"],
+            )
+            self.rho_label, self.rho_entry = insert_row(
+                root=self.line_search_frame,
+                label="Rho:",
+                grid_params=self.gui_config["line_search_container"]["rho"],
+            )
+            # NOTE. Maybe the values need to be set again
+            self.update_line_search_params()
+        else:
+            # TODO. MAKE THIS A LOT BETTER, READABLE AND NICER
+            self.line_search_label.grid_forget()
+            self.line_search_dropdown.grid_forget()
+            self.beta_label.grid_forget()
+            self.beta_entry.grid_forget()
+            self.start_point_label.grid_forget()
+            self.start_point_entry.grid_forget()
+            self.m_label.grid_forget()
+            self.m_entry.grid_forget()
+            self.sigma_label.grid_forget()
+            self.sigma_entry.grid_forget()
+            self.rho_label.grid_forget()
+            self.rho_entry.grid_forget()
+
     def set_test_function(self, event):
         # Select and Set the test function
         selected_function_name = self.function_dropdown.get()  # (string, functions)
@@ -273,24 +313,17 @@ class OptimizationGUI:
         self.method_dropdown["values"] = list(
             self.optimization_methods[selected_method_group][1].keys()
         )
-        print("AAA")
-        print(self.method_dropdown["values"])
         self.method_dropdown.current(0)  # Set first option selected
 
-    def update_line_search_params(self, event):
-        pass
+    def update_line_search_params(self):
         selected_method_group = self.method_group_dropdown.get()
-        selected_method = self.method_dropdown.get()
-
-        # NOTE. MAKE THIS WORK LOL
-        print(self.optimization_methods[selected_method_group])
-        self.line_search_dropdown["values"] = self.optimization_methods[
-            selected_method_group
-        ][1][selected_method][1]
-        self.line_search_dropdown.current(0)
-
-        if selected_method == "GradientLineSearch":
+        selected_method_name = self.method_dropdown.get()
+        selected_method = self.optimization_methods[selected_method_group][1][
+            selected_method_name
+        ]()  # instance of class
+        if selected_method.use_linear_search:
             # Populate Line Search Dropdown and enable parameters
+            self.line_search_dropdown["values"] = list(self.line_search_methods.keys())
             self.line_search_dropdown.current(0)  # Default to first option
 
             self.beta_entry.config(state="normal")
@@ -310,34 +343,27 @@ class OptimizationGUI:
             self.m_entry.insert(0, "10")
 
             self.sigma_entry.delete(0, tk.END)
-            self.sigma_entry.insert(0, "1e-4")
+            self.sigma_entry.insert(0, "1e-6")
 
             self.rho_entry.delete(0, tk.END)
             self.rho_entry.insert(0, "0.1")
         else:
-            self.line_search_dropdown.current(2)
+            # NOTE. Switch this to disabnled
+            # self.line_search_dropdown.current(2)
 
-            self.beta_entry.config(state="normal")
-            self.start_point_entry.config(state="normal")
-            self.m_entry.config(state="normal")
-            self.sigma_entry.config(state="normal")
-            self.rho_entry.config(state="normal")
+            self.line_search_dropdown.config(state="disabled")
+            self.beta_entry.config(state="disabled")
+            self.start_point_entry.config(state="disabled")
+            self.m_entry.config(state="disabled")
+            self.sigma_entry.config(state="disabled")
+            self.rho_entry.config(state="disabled")
 
             # Optionally, set default values for the entries
             self.beta_entry.delete(0, tk.END)
-            self.beta_entry.insert(0, "0.8")
-
             self.start_point_entry.delete(0, tk.END)
-            self.start_point_entry.insert(0, "1.0")
-
             self.m_entry.delete(0, tk.END)
-            self.m_entry.insert(0, "10")
-
             self.sigma_entry.delete(0, tk.END)
-            self.sigma_entry.insert(0, "0.9")
-
             self.rho_entry.delete(0, tk.END)
-            self.rho_entry.insert(0, "0.0001")
 
     def on_find_minimum(self):
         # Collecting parameters from GUI
@@ -345,6 +371,7 @@ class OptimizationGUI:
         # Remove bracket if it exists
         input_str = self.starting_point_entry.get().strip("[]")
         starting_point = [float(x) for x in input_str.split() if x]
+        starting_point = np.asarray(starting_point)
         max_iterations = int(self.max_iter_entry.get())
         epsilon = float(self.epsilon_entry.get())
         work_precision = float(self.work_precision_entry.get())
@@ -375,8 +402,15 @@ class OptimizationGUI:
             self.line_search_dropdown.get()
         )  # NOTE. KEEP THIS FOR NOW
 
+        # Make object of optimization class
+        op_method_group = self.optimization_methods[self.method_group_dropdown.get()][1]
+        self.optimization_method = op_method_group[self.method_dropdown.get()]()
+        # Set its' function
+        self.optimization_method.set_line_step_function(
+            self.line_search_methods[selected_line_search]
+        )
         results = self.optimization_method.find_minimum(
-            self.eval_function, starting_point, params
+            self.test_function, starting_point, params
         )
         # Updating results in GUI
         self.method_result_label.config(text=f"Method: {self.method_dropdown.get()}")
@@ -408,9 +442,9 @@ class OptimizationGUI:
         self.cpu_entry.delete(0, tk.END)
         self.cpu_entry.insert(0, results.get("exec_time"))
 
-        print(
-            f"Fmin: {results.get('fmin')}, Xmin: {results.get('current_point')}, Iterations: {results.get('iteration')}"
-        )
+        # print(
+        #     f"Fmin: {results.get('fmin')}, Xmin: {results.get('current_point')}, Iterations: {results.get('iteration')}"
+        # )
 
         # Visualization for Function Value
 
@@ -438,11 +472,24 @@ if __name__ == "__main__":
     gui_config = utils.get_gui_configs()
     test_functions = utils.get_test_functions(use_classes=True)
     test_functions = utils.map_fancier_dict_keys(test_functions)
+
+    ls_methods = utils.get_line_search_methods()
+    ls_methods = {k.capitalize(): v for k, v in ls_methods.items()}
+
     optimization_methods = utils.get_all_optimization_methods()
     optimization_methods = utils.map_fancier_dict_keys(optimization_methods)
-    print(gui_config, "\n")
+    print("Printing info:")
+    print(ls_methods)
     print(test_functions, "\n")
     print(optimization_methods, "\n")
+
+    # Start loop and main
     root = tk.Tk()
-    app = OptimizationGUI(root, gui_config, test_functions, optimization_methods)
+    app = OptimizationGUI(
+        root,
+        gui_config,
+        test_functions,
+        optimization_methods,
+        ls_methods,
+    )
     root.mainloop()

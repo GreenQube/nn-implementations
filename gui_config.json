@@ -12,12 +12,12 @@
         "gradient_value": {"row": 1, "column": 3, "padx": 10, "pady": 5}
     },
     "line_search_container": {
-        "select": {"row": 0, "column": 0, "padx": 5, "pady": 5},
-        "beta": {"row": 1, "column": 0, "padx": 5, "pady": 5},
-        "starting_point": {"row": 2, "column": 0, "padx": 5, "pady": 5},
-        "m": {"row": 3, "column": 0, "padx": 5, "pady": 5},
-        "sigma": {"row": 4, "column": 0, "padx": 5, "pady": 5},
-        "rho": {"row": 5, "column": 0, "padx": 5, "pady": 5}
+        "select": {"row": 1, "column": 0, "padx": 5, "pady": 5},
+        "beta": {"row": 2, "column": 0, "padx": 5, "pady": 5},
+        "starting_point": {"row": 3, "column": 0, "padx": 5, "pady": 5},
+        "m": {"row": 4, "column": 0, "padx": 5, "pady": 5},
+        "sigma": {"row": 5, "column": 0, "padx": 5, "pady": 5},
+        "rho": {"row": 6, "column": 0, "padx": 5, "pady": 5}
     },
     "stop_condition_container": {
         "max_iter": {"row": 0, "column": 0, "padx": 5, "pady": 5},

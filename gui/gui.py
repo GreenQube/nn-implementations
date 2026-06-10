@@ -107,28 +107,54 @@ def set_row_value(row, value):
 def set_multiple_row_values(row_value_pairs: list[tuple]):
     return [set_row_value(rv_pair[0], rv_pair[1]) for rv_pair in row_value_pairs]
 
-def graph_plot():
-    """TODO."""
-    pass
-
-def line_search_box(root):
-    "TODO."
+def check_box(root, checkbox_gui_params, gui_config, grid_elements):
     def toggle_widget():
-        # If checkbox is checked, show label; otherwise hide it
-        if check_var.get():
-            label.pack()
+        # .get() returns 1 if checked, 0 if unchecked
+        if check_var.get() == 1:
+            my_label.grid(row=1, column=0, pady=10) # Show
         else:
-            label.pack_forget()
+            for grid_element in grid_elements:
+                grid_element.grid_forget() # Hide
 
-    # Checkbox variable
-    check_var = tk.BooleanVar(value=True)
+    # 1. Checkbox and its variable
+    check_var = tk.IntVar()
+    checkbox = tk.Checkbutton(
+        root, 
+        text="Show Params", 
+        variable=check_var, 
+        command=toggle_widget
+    )
+    checkbox.grid(row=6, column=0, padx=10, pady=10)
+    
+    # line_search_label, line_search_dropdown = combobox_row(
+    #     root=root,
+    #     label=gui_config["select"][0],
+    #     grid_params=gui_config["select"][1],
+    # )
+    # # Line search parameters
+    # beta_label, beta_entry = insert_row(
+    #     root=root,
+    #     label=gui_config["beta"][0],
+    #     grid_params=gui_config["beta"][1],
+    # )
+    # start_point_label, start_point_entry = insert_row(
+    #     root=root,
+    #     label=gui_config["starting_point"][0],
+    #     grid_params=gui_config["starting_point"][1],
+    # )
+    # m_label, m_entry = insert_row(
+    #     root=root,
+    #     label=gui_config["m"][0],
+    #     grid_params=gui_config["m"][1],
+    # )
+    # sigma_label, sigma_entry = insert_row(
+    #     root=root,
+    #     label=gui_config["sigma"][0],
+    #     grid_params=gui_config["sigma"][1],
+    # )
+    # rho_label, rho_entry = insert_row(
+    #     root=root,
+    #     label=gui_config["rho"][0],
+    #     grid_params=gui_config["rho"][1],
+    # )
 
-    # Checkbutton
-    check = tk.Checkbutton(root, text="Show Widget", variable=check_var, command=toggle_widget)
-    check.pack(pady=10)
-
-    # Widget to toggle
-    label = tk.Label(root, text="Hello World!", fg="blue")
-    label.pack() # Initially visible
-
-    root.mainloop()

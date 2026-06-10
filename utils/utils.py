@@ -2,6 +2,7 @@
 Module for util functions
 """
 
+import ast
 import os
 import inspect
 import json
@@ -53,8 +54,19 @@ def get_classes_from_file(filepath: str) -> dict[str, str]:
 
     namespace = {}
     exec(compile(source, filepath, "exec"), namespace)
-
-    return {name: obj for name, obj in namespace.items() if inspect.isclass(obj)}
+    all_classes_dict = {
+        name: (obj, obj.__bases__)
+        for name, obj in namespace.items()
+        if inspect.isclass(obj)
+    }
+    parent_classes = []
+    for value in all_classes_dict.values():
+        parent_classes += list(value[1])
+    return {
+        key: value[0]
+        for key, value in all_classes_dict.items()
+        if value[0] not in parent_classes
+    }
 
 
 def get_test_functions(use_classes: bool = True) -> dict[str, str]:  # NOTE. IMPORTANT
@@ -64,6 +76,14 @@ def get_test_functions(use_classes: bool = True) -> dict[str, str]:  # NOTE. IMP
         return get_classes_from_file(get_test_functions_path)
     else:
         return get_functions_from_file(get_test_functions_path)
+
+
+def get_line_search_methods():
+    """NOTE"""
+    get_test_functions_path = os.path.join(
+        PROJECT_PATH, "core", "line_search_methods.py"
+    )
+    return get_functions_from_file(get_test_functions_path)
 
 
 def get_optimization_methods(method_name: str) -> dict[str, str]:
