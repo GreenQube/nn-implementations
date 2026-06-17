@@ -7,17 +7,17 @@
         "opt_method": {"row": 4, "column": 0, "padx": 10, "pady": 5},
         "line_search_container": {"row": 5, "column": 0, "padx": 10, "pady": 10, "sticky":"ew"},
         "stop_condition_container": {"row": 6, "column": 0, "padx": 10, "pady": 10, "sticky":"ew"},
-        "results_container": {"row": 6, "column": 2, "padx": 10, "pady": 10, "sticky":"ew"},
+        "results_container": {"row": 7, "column": 2, "padx": 10, "pady": 10, "sticky":"ew"},
         "function_value": {"row": 1, "column": 2, "padx": 10, "pady": 5},
         "gradient_value": {"row": 1, "column": 3, "padx": 10, "pady": 5}
     },
     "line_search_container": {
-        "select": {"row": 0, "column": 0, "padx": 5, "pady": 5},
-        "beta": {"row": 1, "column": 0, "padx": 5, "pady": 5},
-        "starting_point": {"row": 2, "column": 0, "padx": 5, "pady": 5},
-        "m": {"row": 3, "column": 0, "padx": 5, "pady": 5},
-        "sigma": {"row": 4, "column": 0, "padx": 5, "pady": 5},
-        "rho": {"row": 3, "column": 0, "padx": 5, "pady": 5}
+        "select": {"row": 1, "column": 0, "padx": 5, "pady": 5},
+        "beta": {"row": 2, "column": 0, "padx": 5, "pady": 5},
+        "starting_point": {"row": 3, "column": 0, "padx": 5, "pady": 5},
+        "m": {"row": 4, "column": 0, "padx": 5, "pady": 5},
+        "sigma": {"row": 5, "column": 0, "padx": 5, "pady": 5},
+        "rho": {"row": 6, "column": 0, "padx": 5, "pady": 5}
     },
     "stop_condition_container": {
         "max_iter": {"row": 0, "column": 0, "padx": 5, "pady": 5},
@@ -25,15 +25,15 @@
         "work_precision": {"row": 2, "column": 0, "padx": 5, "pady": 5}
     },
     "results_container": {
-        "method_result": {"row": 0, "column": 0, "padx": 5, "pady": 5},
         "function_result": {"row": 1, "column": 0, "padx": 5, "pady": 5},
+        "method_result": {"row": 0, "column": 0, "padx": 5, "pady": 5},
         "fmin": {"row": 2, "column": 0, "padx": 5, "pady": 5},
         "xmin": {"row": 3, "column": 0, "padx": 5, "pady": 5},
         "iter": {"row": 4, "column": 0, "padx": 5, "pady": 5},
         "gradient_norm": {"row": 5, "column": 0, "padx": 5, "pady": 5},
-        "function_eval_num": {"row": 2, "column": 0, "padx": 5, "pady": 5},
-        "gradient_eval_num": {"row": 3, "column": 0, "padx": 5, "pady": 5},
-        "hessian_eval_num": {"row": 4, "column": 0, "padx": 5, "pady": 5},
-        "cpu_time": {"row": 5, "column": 0, "padx": 5, "pady": 5}
+        "function_eval_num": {"row": 2, "column": 2, "padx": 5, "pady": 5},
+        "gradient_eval_num": {"row": 3, "column": 2, "padx": 5, "pady": 5},
+        "hessian_eval_num": {"row": 4, "column": 2, "padx": 5, "pady": 5},
+        "cpu_time": {"row": 5, "column": 2, "padx": 5, "pady": 5}
     }
 }
