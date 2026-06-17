@@ -22,6 +22,14 @@ class LineSearchMethod(OptimizationMethod):
     def find_minimum(self, eval_function, starting_point, params):
         raise NotImplementedError("Calculate step size method should be overridden")
 
+    def set_line_step_function(self, ls_function):
+        # Sets linear step function
+        self.linear_step_function = ls_function
+
+    def calculate_step_size(self, input_function, direction, params):
+        # NOTE. Dumb, I know
+        return self.linear_step_function(input_function, direction, params)
+
 
 # test functions class
 class TestFunction:

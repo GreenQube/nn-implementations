@@ -76,13 +76,44 @@ class OptimizationGUI:
             0, str(self.initial_variables_no)
         )  # Set initial to 100
 
-        ##############################################################################################
         # Line Search Params Container
         self.line_search_frame = gui_container(
             root,
             label="Line Search Params",
             grid_params=gui_config["root"]["line_search_container"],
         )
+        self.line_search_label, self.line_search_dropdown = combobox_row(
+            root=self.line_search_frame,
+            label="Select Line Search:",
+            grid_params=self.gui_config["line_search_container"]["select"],
+        )
+        # Line search parameters
+        self.beta_label, self.beta_entry = insert_row(
+            root=self.line_search_frame,
+            label="Beta:",
+            grid_params=self.gui_config["line_search_container"]["beta"],
+        )
+        self.start_point_label, self.start_point_entry = insert_row(
+            root=self.line_search_frame,
+            label="Start Point:",
+            grid_params=self.gui_config["line_search_container"]["starting_point"],
+        )
+        self.m_label, self.m_entry = insert_row(
+            root=self.line_search_frame,
+            label="M:",
+            grid_params=self.gui_config["line_search_container"]["m"],
+        )
+        self.sigma_label, self.sigma_entry = insert_row(
+            root=self.line_search_frame,
+            label="Sigma:",
+            grid_params=self.gui_config["line_search_container"]["sigma"],
+        )
+        self.rho_label, self.rho_entry = insert_row(
+            root=self.line_search_frame,
+            label="Rho:",
+            grid_params=self.gui_config["line_search_container"]["rho"],
+        )
+
         # Checkbox
         self.ls_check_var = tk.BooleanVar()
         self.ls_checkbox = tk.Checkbutton(
@@ -91,9 +122,8 @@ class OptimizationGUI:
             variable=self.ls_check_var,
             command=self.toggle_ls_parameters,
         )
+        self.toggle_ls_parameters()
         self.ls_checkbox.grid(row=0, column=0, padx=10, pady=10)
-
-        ##############################################################################################
 
         # Stopping Condition Params Container
         stopping_condition_frame = gui_container(
@@ -119,7 +149,7 @@ class OptimizationGUI:
             root=stopping_condition_frame,
             label="Work Precision:",
             grid_params=gui_config["stop_condition_container"]["work_precision"],
-            initial_value="1e-16",
+            initial_value="1e-6",
         )
 
         # Results Container
@@ -231,7 +261,7 @@ class OptimizationGUI:
         )
         self.find_min_button.grid(row=8, column=0, padx=10, pady=10)
 
-    def toggle_ls_parameters(self):
+    def toggle_ls_parameters(self, event=None):
         # TODO. MAKE THIS A LOT BETTER, READABLE AND NICER
         # Make them appear and dissapear
         if self.ls_check_var.get():
@@ -266,8 +296,9 @@ class OptimizationGUI:
                 label="Rho:",
                 grid_params=self.gui_config["line_search_container"]["rho"],
             )
-            # NOTE. Maybe the values need to be set again
-            self.update_line_search_params()
+
+            # Set the values again
+            self.update_line_search_params(event)
         else:
             # TODO. MAKE THIS A LOT BETTER, READABLE AND NICER
             self.line_search_label.grid_forget()
@@ -283,7 +314,7 @@ class OptimizationGUI:
             self.rho_label.grid_forget()
             self.rho_entry.grid_forget()
 
-    def set_test_function(self, event):
+    def set_test_function(self, event=None):
         # Select and Set the test function
         selected_function_name = self.function_dropdown.get()  # (string, functions)
         function_name, selected_function = self.test_functions.get(
@@ -308,21 +339,25 @@ class OptimizationGUI:
             self.starting_point_entry.delete(0, tk.END)
             self.starting_point_entry.insert(0, "Invalid Dimension")
 
-    def update_method_options(self, event):
+    def update_method_options(self, event=None):
         selected_method_group = self.method_group_dropdown.get()
         self.method_dropdown["values"] = list(
             self.optimization_methods[selected_method_group][1].keys()
         )
         self.method_dropdown.current(0)  # Set first option selected
+        self.update_line_search_params(event)
 
-    def update_line_search_params(self):
+    def update_line_search_params(self, event=None):
         selected_method_group = self.method_group_dropdown.get()
         selected_method_name = self.method_dropdown.get()
         selected_method = self.optimization_methods[selected_method_group][1][
             selected_method_name
         ]()  # instance of class
         if selected_method.use_linear_search:
+            self.ls_checkbox.config(state="normal")
+
             # Populate Line Search Dropdown and enable parameters
+            self.line_search_dropdown.config(state="normal")
             self.line_search_dropdown["values"] = list(self.line_search_methods.keys())
             self.line_search_dropdown.current(0)  # Default to first option
 
@@ -348,9 +383,8 @@ class OptimizationGUI:
             self.rho_entry.delete(0, tk.END)
             self.rho_entry.insert(0, "0.1")
         else:
-            # NOTE. Switch this to disabnled
-            # self.line_search_dropdown.current(2)
-
+            # Make the disabled
+            self.ls_checkbox.config(state="disabled")
             self.line_search_dropdown.config(state="disabled")
             self.beta_entry.config(state="disabled")
             self.start_point_entry.config(state="disabled")
@@ -365,13 +399,14 @@ class OptimizationGUI:
             self.sigma_entry.delete(0, tk.END)
             self.rho_entry.delete(0, tk.END)
 
-    def on_find_minimum(self):
+    def on_find_minimum(self, event=None):
         # Collecting parameters from GUI
         variables_no = int(self.variables_entry.get())
         # Remove bracket if it exists
         input_str = self.starting_point_entry.get().strip("[]")
         starting_point = [float(x) for x in input_str.split() if x]
         starting_point = np.asarray(starting_point)
+        # Get stopping parameters
         max_iterations = int(self.max_iter_entry.get())
         epsilon = float(self.epsilon_entry.get())
         work_precision = float(self.work_precision_entry.get())
@@ -398,17 +433,15 @@ class OptimizationGUI:
             "rho": rho,  # NOTE. might be useful later?
         }
 
-        selected_line_search = (
-            self.line_search_dropdown.get()
-        )  # NOTE. KEEP THIS FOR NOW
-
         # Make object of optimization class
         op_method_group = self.optimization_methods[self.method_group_dropdown.get()][1]
         self.optimization_method = op_method_group[self.method_dropdown.get()]()
-        # Set its' function
-        self.optimization_method.set_line_step_function(
-            self.line_search_methods[selected_line_search]
-        )
+
+        if self.optimization_method.use_linear_search:
+            # Set its' function
+            self.optimization_method.set_line_step_function(
+                self.line_search_methods[self.line_search_dropdown.get()]
+            )
         results = self.optimization_method.find_minimum(
             self.test_function, starting_point, params
         )
@@ -442,12 +475,7 @@ class OptimizationGUI:
         self.cpu_entry.delete(0, tk.END)
         self.cpu_entry.insert(0, results.get("exec_time"))
 
-        # print(
-        #     f"Fmin: {results.get('fmin')}, Xmin: {results.get('current_point')}, Iterations: {results.get('iteration')}"
-        # )
-
         # Visualization for Function Value
-
         self.function_ax.clear()
         self.function_ax.plot(results.get("function_values"), linestyle="-", color="b")
         self.function_ax.set_title("Function Value")
@@ -457,7 +485,6 @@ class OptimizationGUI:
         self.function_canvas.draw()  # Refreshing Plot
 
         # Visualization for Gradient Value
-
         self.gradient_ax.clear()
         self.gradient_ax.plot(results.get("gradient_values"), linestyle="-", color="r")
         self.gradient_ax.set_title("Gradient Value")
@@ -478,10 +505,6 @@ if __name__ == "__main__":
 
     optimization_methods = utils.get_all_optimization_methods()
     optimization_methods = utils.map_fancier_dict_keys(optimization_methods)
-    print("Printing info:")
-    print(ls_methods)
-    print(test_functions, "\n")
-    print(optimization_methods, "\n")
 
     # Start loop and main
     root = tk.Tk()

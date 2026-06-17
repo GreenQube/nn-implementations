@@ -3,6 +3,8 @@ Module for util functions
 """
 
 import ast
+import numpy as np
+from numpy.linalg import inv
 import os
 import inspect
 import json
@@ -137,3 +139,21 @@ def map_fancier_dict_keys(input_dict: dict[str, str], all_caps: bool = False):
     return {
         fancy_key_mappings[key]: (key, input_dict[key]) for key in input_dict.keys()
     }
+
+
+def get_array_inv(input_array: np.ndarray):
+    # check if the array is diagonal:
+    # Create a copy and zero out the main diagonal
+    off_diagonal_elements = input_array.copy()
+    np.fill_diagonal(off_diagonal_elements, 0)
+
+    # If all remaining elements are 0, it's a diagonal matrix
+    if np.count_nonzero(off_diagonal_elements) == 0:
+        if input_array.dtype != np.float64:
+            input_array = input_array.astype(np.float64)
+        reciprocal = np.reciprocal(input_array)
+        inverse = np.where(~np.isinf(reciprocal), reciprocal, 0.0)
+        return inverse
+    else:
+        inverse = inv(input_array)
+        return inverse
