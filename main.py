@@ -320,16 +320,15 @@ class OptimizationGUI:
         function_name, selected_function = self.test_functions.get(
             selected_function_name
         )
+        dimension = int(self.variables_entry.get())
         if not isinstance(self.test_function, selected_function):
-            self.test_function = selected_function(
-                input_array=self.initial_variables_no
-            )
+            self.test_function = selected_function(input_array=dimension)
             starting_point = self.test_function.get_starting_point()
         else:
-            dimension = int(self.variables_entry.get())
             starting_point = self.test_function.set_starting_point(
                 input_array=dimension
             )
+
         # Get dimension from "Variables No" text box
         try:
             # Set starting point

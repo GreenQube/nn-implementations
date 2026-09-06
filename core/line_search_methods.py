@@ -1,13 +1,24 @@
 """
-Module for line search methods
+Module for line search methods.
 """
 
-# gradient_line_search.py
 import numpy as np
 from operator import add
+from core.core import TestFunction
 
 
-def armijo(input_function, direction, params):
+def armijo(input_function: TestFunction, direction: np.ndarray, params: dict[str, any]):
+    """
+    Armijo Line Search Method used to calculated a step parameter
+
+    args:
+        input_function (TestFunction): Function for which we are using line search.
+        direction (np.ndarray): Direction vector used for calculating the step.
+        params (dict[str, any]): Various parameters used for caclulating step
+
+    returns:
+        Necessary step, fullfiling the line search criterium.
+    """
     evaluation_numbers = [0, 0, 0]
     beta = params["beta"]
     sigma = params["sigma"]
@@ -34,8 +45,21 @@ def armijo(input_function, direction, params):
     return step, evaluation_numbers
 
 
-# def goldstein(self, func, x, direction, params):
-def goldstein(input_function, direction, params):
+def goldstein(
+    input_function: TestFunction, direction: np.ndarray, params: dict[str, any]
+):
+    """
+    Goldstein Line Search Method used to calculate a step parameter.
+
+    args:
+        input_function (TestFunction): Function for which we are using line search.
+        direction (np.ndarray): Direction vector used for calculating the step.
+        params (dict[str, any]): Various parameters used for calculating step.
+
+    returns:
+        Necessary step, fulfilling the line search criterium.
+    """
+
     evaluation_numbers = [0, 0, 0]
     alpha = params["sigma"]
     beta = params["beta"]
@@ -61,7 +85,22 @@ def goldstein(input_function, direction, params):
     return step, evaluation_numbers
 
 
-def wolfe(input_function, direction, params):
+def wolfe(input_function: TestFunction, direction: np.ndarray, params: dict[str, any]):
+    """
+    Wolfe Line Search Method used to calculate a step parameter.
+
+    args:
+        input_function (TestFunction): Function for which we are using line search.
+        direction (np.ndarray): Direction vector used for calculating the step.
+        params (dict[str, any]): Various parameters used for calculating step,
+            expected keys:
+                - "sigma" (float): c1 constant for the sufficient decrease (Armijo) condition.
+                - "rho" (float): c2 constant for the curvature condition.
+
+    returns:
+        Necessary step, fulfilling the line search criterium.
+    """
+
     evaluation_numbers = [0, 0, 0]
     c1 = params["sigma"]  # You can use sigma as c1
     c2 = params["rho"]  # Assuming rho is for c2
