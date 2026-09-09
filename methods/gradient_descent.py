@@ -2,7 +2,7 @@
 Module for the gradient descent
 """
 
-# gradient_line_search.py
+# gradient_descent.py
 import time
 import numpy as np
 from core.core import LineSearchMethod
@@ -51,7 +51,6 @@ class GradientLineSearch(LineSearchMethod):
             step_size, eval_numbers = self.calculate_step_size(
                 input_function=eval_function,
                 direction=-grad,
-                params=params,
             )
             self.evaluation_numbers = list(
                 map(add, self.evaluation_numbers, eval_numbers)

@@ -52,7 +52,6 @@ class BFGS(LineSearchMethod):
             step_size, eval_numbers = self.calculate_step_size(
                 input_function=eval_function,
                 direction=direction,
-                params=params,
             )
 
             self.evaluation_numbers = list(
@@ -213,7 +212,6 @@ class L_BFGS(LineSearchMethod):
             step_size, eval_numbers = self.calculate_step_size(
                 input_function=eval_function,
                 direction=direction,
-                params=params,
             )
 
             self.evaluation_numbers = list(
@@ -324,7 +322,6 @@ class Broyden(LineSearchMethod):
             step_size, eval_numbers = self.calculate_step_size(
                 input_function=eval_function,
                 direction=direction,
-                params=params,
             )
 
             self.evaluation_numbers = list(

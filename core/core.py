@@ -10,8 +10,8 @@ class OptimizationMethod:
     Core class for Optimization Methods.
     """
 
-    def __init__(self, use_linear_search: bool = False):
-        self.use_linear_search = use_linear_search
+    def __init__(self, use_line_search: bool = False):
+        self.use_line_search = use_line_search
 
     def find_minimum(
         self, function: TestFunction, starting_point: np.ndarray, params: dict[str, any]
@@ -25,34 +25,25 @@ class LineSearchMethod(OptimizationMethod):
     Is a child of class OptimizationMethod.
     """
 
-    def __init__(self, use_linear_search: bool = True):
-        super().__init__(use_linear_search)
+    def __init__(self, use_line_search: bool = True):
+        super().__init__(use_line_search)
         self.evaluation_numbers = [0, 0, 0]  # val, gradient, hessian
         self.line_step_function = None
 
-    def calculate_step_size(self, **kwargs):
-        raise NotImplementedError("Calculate step size method should be overridden")
-
-    def find_minimum(
-        self,
-        eval_function: TestFunction,
-        starting_point: np.ndarray,
-        params: dict[str, any],
-    ):
-        raise NotImplementedError("Calculate step size method should be overridden")
-
     def set_line_step_function(self, ls_function: TestFunction):
-        # Sets linear step function
-        self.linear_step_function = ls_function
+        # Sets line step function
+        self.line_step_function = ls_function
 
     def calculate_step_size(
         self,
         input_function: TestFunction,
         direction: np.ndarray,
-        params: dict[str, any],
+        params: dict[str, any] | None = None,
     ):
-        # NOTE. Dumb, I know.
-        return self.linear_step_function(input_function, direction, params)
+        # Set new parameters if provided
+        if params is not None:
+            self.line_step_function.set_parameters(params)
+        return self.line_step_function.calculate_function(input_function, direction)
 
 
 class TestFunction:
@@ -82,3 +73,23 @@ class TestFunction:
 
     def starting_points(self, input_array: np.ndarray | int | tuple):
         raise NotImplementedError("This method should be overridden")
+
+
+class LineStepFunction:
+    def __init__(self, parameters: dict[str, str]):
+        temp_params = {}
+        for k, v in parameters.items():
+            temp_params[k] = float(v)
+        self.parameters = temp_params
+
+    def calculate_function(self, input_functon: TestFunction, direction: np.ndarray):
+        raise NotImplementedError("This method should be overridden")
+
+    def get_parameters(self):  # NOTE. might not even need this lol
+        return self.parameters
+
+    def set_parameters(self, new_params: dict[str, any]):
+        temp_params = {}
+        for k, v in new_params.items():
+            temp_params[k] = float(v)
+        self.parameters = temp_params

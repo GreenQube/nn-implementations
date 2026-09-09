@@ -57,7 +57,7 @@ class Quad_Qf1:
 class Quad_Qf2:
     def __init__(self, input_array: np.ndarray | int | tuple):
         if not isinstance(input_array, np.ndarray):
-            input_array = np.ones(input_array)
+            input_array = np.ones(input_array) * 0.5
         self.starting_point = input_array
         self.value = 0.0
         self.gradient = np.zeros(len(self.starting_point))
@@ -110,7 +110,7 @@ class Quad_Qf2:
 class Raydan_1:
     def __init__(self, input_array: np.ndarray | int | tuple):
         if not isinstance(input_array, np.ndarray):
-            input_array = np.ones(input_array)
+            input_array = np.ones(input_array) * 0.5
         self.starting_point = input_array
         self.value = 0.0
         self.gradient = np.zeros(len(self.starting_point))

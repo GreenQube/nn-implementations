@@ -80,12 +80,15 @@ def get_test_functions(use_classes: bool = True) -> dict[str, str]:  # NOTE. IMP
         return get_functions_from_file(get_test_functions_path)
 
 
-def get_line_search_methods():
+def get_line_search_functions():
     """NOTE"""
     get_test_functions_path = os.path.join(
         PROJECT_PATH, "core", "line_search_methods.py"
     )
-    return get_functions_from_file(get_test_functions_path)
+    ls_methods = get_classes_from_file(get_test_functions_path)
+    if "TestFunction" in ls_methods.keys():
+        ls_methods.pop("TestFunction")
+    return ls_methods
 
 
 def get_optimization_methods(method_name: str) -> dict[str, str]:
