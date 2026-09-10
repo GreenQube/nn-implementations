@@ -505,27 +505,24 @@ class Full_Hessian_1:
 
         if gradient:
             if n > 1:
-                r = self.starting_point - 3 - 2 * isum[1:] ** 2
+                r = self.starting_point[0] - 3 - 2 * isum[1:] ** 2
                 T = r * isum[1:]
                 # suf_T[m] = sum_{k=m+1}^{n-1} T[k-1]
                 suf_T = np.cumsum(T[::-1])[::-1]
                 self.gradient[1:] = -8 * suf_T
                 self.gradient[0] = (
-                    2 * (self.starting_point - 3) + 2 * np.sum(r) - 8 * suf_T[0]
+                    2 * (self.starting_point[0] - 3) + 2 * np.sum(r) - 8 * suf_T[0]
                 )
             else:
-                self.gradient[0] = 2 * (self.starting_point - 3)
+                self.gradient[0] = 2 * (self.starting_point[0] - 3)
 
         if hessian:
             self.hessian = np.zeros((n, n))
             if n > 1:
-                post_sum_pref = np.cumsum(isum[::-1])[
-                    ::-1
-                ]  # post_sum_pref[k] = isum[k]+isum[k+1]+...+isum[n-1]
-                post_quad_pref = np.cumsum(isum[::-1] ** 2)[
-                    ::-1
-                ]  # post_quad_pref[k] = isum[k]^2+...+isum[n-1]^2
-
+                post_sum_pref = np.cumsum(isum[::-1])[::-1]
+                # post_sum_pref[k] = isum[k]+isum[k+1]+...+isum[n-1]
+                post_quad_pref = np.cumsum(isum[::-1] ** 2)[::-1]
+                # post_quad_pref[k] = isum[k]^2+...+isum[n-1]^2
                 # unutrasnji blok, indeksi 1..n-2 (bez poslednjeg indeksa n-1)
                 if n > 2:
                     rows, cols = np.triu_indices(n - 2)
@@ -542,7 +539,7 @@ class Full_Hessian_1:
                 self.hessian[-1, 1:] = last_val
                 self.hessian[1:, -1] = last_val
 
-                # sad je cela dijagonala (1..n-1) popunjena -> moze trik preko diag()
+                # sad je cela dijagonala (1..n-1) popunjena
                 self.hessian[0, 1:] = np.diag(self.hessian)[1:] - 8 * post_sum_pref[1:]
                 self.hessian[1:, 0] = self.hessian[0, 1:]
 

@@ -384,3 +384,96 @@ class Broyden(LineSearchMethod):
             "eval_numbers": self.evaluation_numbers,
             "exec_time": cpu_time,
         }
+
+
+class DFP(LineSearchMethod):
+
+    def __init__(self):
+        super().__init__()
+        self.evaluation_numbers = [0, 0, 0]
+
+    def find_minimum(self, eval_function, starting_point, params):
+
+        epsilon = params["epsilon"]
+        max_iter = params["max_iterations"]
+        work_precision = params["work_precision"]
+
+        eval_function.set_starting_point(starting_point)
+
+        dim = len(starting_point)
+        inverse_hess_apr = np.eye(dim)
+
+        function_values = []
+        gradient_values = []
+        start_time = time.process_time()
+
+        it = 1
+        current_point = eval_function.get_starting_point()
+        f_curr, grad, _ = eval_function.calculate(
+            value=True, gradient=True, hessian=False
+        )
+        self.evaluation_numbers = list(map(add, self.evaluation_numbers, [1, 1, 0]))
+        grad_norm = np.linalg.norm(grad)
+
+        function_values.append(f_curr)
+        gradient_values.append(grad_norm)
+
+        f_prev = f_curr + 1
+
+        while (
+            grad_norm > epsilon
+            and it < max_iter
+            and abs(f_prev - f_curr) / (1 + abs(f_curr)) > work_precision
+        ):
+
+            direction = -np.matmul(inverse_hess_apr, grad)
+
+            f_prev = f_curr
+            prev_point, prev_grad = current_point, grad
+
+            step_size, eval_numbers = self.calculate_step_size(
+                input_function=eval_function, direction=direction
+            )
+            self.evaluation_numbers = list(
+                map(add, self.evaluation_numbers, eval_numbers)
+            )
+
+            current_point = current_point + step_size * direction
+            eval_function.set_starting_point(current_point)
+            f_curr, grad, _ = eval_function.calculate(
+                value=True, gradient=True, hessian=False
+            )
+            self.evaluation_numbers = list(map(add, self.evaluation_numbers, [1, 1, 0]))
+            grad_norm = np.linalg.norm(grad)
+
+            s = current_point - prev_point
+            y = grad - prev_grad
+
+            # DFP hessian aproximation update
+            sTs = np.dot(s, s)
+            yTHy = np.dot(y, np.matmul(inverse_hess_apr, y))
+            if sTs <= 1e-12 or yTHy <= 1e-12:
+                print("Skipping DFP update, s^Ts =", sTs, " y^THy =", yTHy)
+            else:
+                Hy = np.matmul(inverse_hess_apr, y)
+                inverse_hess_apr = (
+                    inverse_hess_apr + np.outer(s, s) / sTs - np.outer(Hy, Hy) / yTHy
+                )
+
+            it += 1
+            function_values.append(f_curr)
+            gradient_values.append(grad_norm)
+
+        cpu_time = time.process_time() - start_time
+        it -= 1
+
+        return {
+            "current_point": eval_function.get_starting_point(),
+            "fmin": f_curr,
+            "iteration": it,
+            "function_values": function_values,
+            "gradient_values": gradient_values,
+            "grad_norm": gradient_values[it],
+            "eval_numbers": self.evaluation_numbers,
+            "exec_time": cpu_time,
+        }
