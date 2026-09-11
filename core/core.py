@@ -81,6 +81,7 @@ class LineStepFunction:
         for k, v in parameters.items():
             temp_params[k] = float(v)
         self.parameters = temp_params
+        self.default_step = 1.0
 
     def calculate_function(self, input_functon: TestFunction, direction: np.ndarray):
         raise NotImplementedError("This method should be overridden")

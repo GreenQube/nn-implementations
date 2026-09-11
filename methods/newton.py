@@ -7,7 +7,7 @@ import time
 import numpy as np
 from core.core import OptimizationMethod
 from operator import add
-from utils.utils import get_array_inv
+from utils.utils import get_array_inv, relative_error
 
 
 class Newton_Raphson(OptimizationMethod):
@@ -40,25 +40,18 @@ class Newton_Raphson(OptimizationMethod):
             # Prevent division by zero if derivative is too close to 0
             if np.linalg.norm(grad) < epsilon:
                 print("Derivative is zero. No unique tangent line.")
-                break
-                raise ZeroDivisionError("Derivative is zero. No unique tangent line.")
 
             # Newton-Raphson update step
             inv_hess = get_array_inv(hess)
             next_step = np.matmul(inv_hess, grad)
             next_val = starting_point - next_step
 
-            # Check if the result has converged within our tolerance limit
-            # if np.sum(np.abs(next_val - starting_point)) < work_precision:
-            #     break
-
             if (
                 next_val is not None
-                and (abs(next_val - starting_point) / (1 + abs(next_val)))
-                < work_precision
+                and relative_error(next_val, starting_point) < work_precision
             ):
                 print(
-                    f"Stopped because of a small change in funcion values ({abs(prev_val - val)/(1 + abs(val))} < {work_precision})"
+                    f"Stopped because of a small change in funcion values ({relative_error(next_val, starting_point)} < {work_precision})"
                 )
                 break
 

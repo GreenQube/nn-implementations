@@ -5,7 +5,7 @@ Module for the quasi-newton method implementations.
 # gradient_line_search.py
 import time
 from core.core import OptimizationMethod, LineSearchMethod
-from utils.utils import get_array_inv
+from utils.utils import get_array_inv, relative_error
 import numpy as np
 from operator import add
 
@@ -262,7 +262,10 @@ class L_BFGS(LineSearchMethod):
             if np.linalg.norm(grad) < epsilon:
                 break
 
-            if relative_function_change < work_precision:
+            if f_prev is not None and relative_error(f_curr, f_prev) < work_precision:
+                print(
+                    f"Stopped because of a small change in funcion values ({relative_error(f_curr, f_prev)} < {work_precision})"
+                )
                 break
 
         cpu_time = time.process_time() - start_time
@@ -369,7 +372,10 @@ class Broyden(LineSearchMethod):
             if np.linalg.norm(grad) < epsilon:
                 break
 
-            if relative_function_change < work_precision:
+            if f_prev is not None and relative_error(f_curr, f_prev) < work_precision:
+                print(
+                    f"Stopped because of a small change in funcion values ({relative_error(f_curr, f_prev)} < {work_precision})"
+                )
                 break
 
         cpu_time = time.process_time() - start_time
@@ -387,7 +393,6 @@ class Broyden(LineSearchMethod):
 
 
 class DFP(LineSearchMethod):
-
     def __init__(self):
         super().__init__()
         self.evaluation_numbers = [0, 0, 0]
@@ -420,11 +425,7 @@ class DFP(LineSearchMethod):
 
         f_prev = f_curr + 1
 
-        while (
-            grad_norm > epsilon
-            and it < max_iter
-            and abs(f_prev - f_curr) / (1 + abs(f_curr)) > work_precision
-        ):
+        while it < max_iter and grad_norm > epsilon:
 
             direction = -np.matmul(inverse_hess_apr, grad)
 
@@ -463,6 +464,11 @@ class DFP(LineSearchMethod):
             it += 1
             function_values.append(f_curr)
             gradient_values.append(grad_norm)
+            if f_prev is not None and relative_error(f_curr, f_prev) < work_precision:
+                print(
+                    f"Stopped because of a small change in funcion values ({relative_error(f_curr, f_prev)} < {work_precision})"
+                )
+                break
 
         cpu_time = time.process_time() - start_time
         it -= 1

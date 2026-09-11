@@ -134,7 +134,7 @@ class OptimizationGUI:
             root=stopping_condition_frame,
             label="Work Precision:",
             grid_params=gui_config["stop_condition_container"]["work_precision"],
-            initial_value="1e-6",
+            initial_value="1e-12",
         )
 
         # Results Container
@@ -148,6 +148,7 @@ class OptimizationGUI:
             label_1="Method:",
             label_2="",
             grid_params=gui_config["results_container"]["method_result"],
+            columnspan=3,
         )
 
         self.function_result_label, self.function_result_value = label_row(
@@ -155,6 +156,7 @@ class OptimizationGUI:
             label_1="Function:",
             label_2="",
             grid_params=gui_config["results_container"]["function_result"],
+            columnspan=3,
         )
 
         # Set other results box
@@ -202,32 +204,15 @@ class OptimizationGUI:
         # ################### PLOTING ###################
         # Plot for Function Value per Iteration
 
-        # Function Value per Iteration Label
-        self.function_plot_label = tk.Label(root, text="Function Value:")
-        self.function_plot_label.grid(row=1, column=2, sticky=tk.W, padx=10, pady=5)
-
-        self.function_fig = Figure(figsize=(5, 4), dpi=100)
-        self.function_ax = self.function_fig.add_subplot(111)
-        self.function_canvas = FigureCanvasTkAgg(self.function_fig, master=root)
-        self.function_canvas.get_tk_widget().grid(row=5, column=2, padx=10, pady=5)
-        ###############    TOOLBAR    ###############
-        toolbar_frame_function = tk.Frame(root)
-        toolbar_frame_function.grid(
-            row=6, column=2, padx=10, pady=5, sticky="nw"
-        )  # row was 21
-        function_toolbar = NavigationToolbar2Tk(
-            self.function_canvas, toolbar_frame_function
-        )
-
         # Gradient Value per Iteration Label
         self.gradient_plot_label = tk.Label(root, text="Gradient Value:")
-        self.gradient_plot_label.grid(row=1, column=3, sticky=tk.W, padx=10, pady=5)
+        self.gradient_plot_label.grid(row=1, column=2, sticky=tk.W, padx=10, pady=5)
 
         # Plot for Gradient Value per Iteration
         self.gradient_fig = Figure(figsize=(5, 4), dpi=100)
         self.gradient_ax = self.gradient_fig.add_subplot(111)
         self.gradient_canvas = FigureCanvasTkAgg(self.gradient_fig, master=root)
-        self.gradient_canvas.get_tk_widget().grid(row=5, column=3, padx=10, pady=5)
+        self.gradient_canvas.get_tk_widget().grid(row=5, column=2, padx=10, pady=5)
 
         ###############    TOOLBAR    ###############
         toolbar_frame_gradient = tk.Frame(root)
@@ -239,12 +224,29 @@ class OptimizationGUI:
             self.gradient_canvas, toolbar_frame_gradient
         )
 
+        # Function Value per Iteration Label
+        self.function_plot_label = tk.Label(root, text="Function Value:")
+        self.function_plot_label.grid(row=1, column=3, sticky=tk.W, padx=10, pady=5)
+
+        self.function_fig = Figure(figsize=(5, 4), dpi=100)
+        self.function_ax = self.function_fig.add_subplot(111)
+        self.function_canvas = FigureCanvasTkAgg(self.function_fig, master=root)
+        self.function_canvas.get_tk_widget().grid(row=5, column=3, padx=10, pady=5)
+        ###############    TOOLBAR    ###############
+        toolbar_frame_function = tk.Frame(root)
+        toolbar_frame_function.grid(
+            row=6, column=2, padx=10, pady=5, sticky="nw"
+        )  # row was 21
+        function_toolbar = NavigationToolbar2Tk(
+            self.function_canvas, toolbar_frame_function
+        )
+
         # ###### FIND MINIMUM BUTTON TODO.#######
         # Add Find Minimum Button
         self.find_min_button = tk.Button(
-            root, text="Find Minimum", command=self.on_find_minimum
+            root, text="Find Minimum", command=self.on_find_minimum, width=20, height=2
         )
-        self.find_min_button.grid(row=8, column=0, padx=10, pady=10)
+        self.find_min_button.grid(row=7, column=0, padx=10, pady=10)
 
     ######################################################################################################################################
     # Function for setting the test function. NOTE. There is probably a bug here setting the init values.
@@ -402,6 +404,23 @@ class OptimizationGUI:
             self.line_search_function.set_parameters(self.ls_frame_params.get_values())
             self.optimization_method.set_line_step_function(self.line_search_function)
 
+        verbose = False
+        if verbose:
+            print()
+            print("Showing Verbose Data:")
+            print("Optimization Method Group")
+            print(type(op_method_group))
+            print("Optimization Method")
+            print(type(self.optimization_method))
+            print("Test Function")
+            print(type(self.test_function))
+            print("Line Search Function")
+            print(type(self.line_search_function))
+            if self.line_search_function is not None:
+                print("LS Params")
+                print(self.line_search_function.parameters)
+            print()
+
         # Get the find minimum.
         results = self.optimization_method.find_minimum(
             self.test_function, starting_point, stopping_condition_params
@@ -414,16 +433,16 @@ class OptimizationGUI:
         )
 
         self.fmin_entry.delete(0, tk.END)
-        self.fmin_entry.insert(0, results.get("fmin"))
+        self.fmin_entry.insert(0, results.get("fmin").round(6))
 
         self.xmin_entry.delete(0, tk.END)
-        self.xmin_entry.insert(0, results.get("current_point"))
+        self.xmin_entry.insert(0, results.get("current_point").round(6))
 
         self.iter_entry.delete(0, tk.END)
         self.iter_entry.insert(0, results.get("iteration"))
 
         self.grad_norm_entry.delete(0, tk.END)
-        self.grad_norm_entry.insert(0, results.get("grad_norm"))
+        self.grad_norm_entry.insert(0, results.get("grad_norm").round(6))
 
         self.f_eval_entry.delete(0, tk.END)
         self.f_eval_entry.insert(0, results.get("eval_numbers")[0])
@@ -444,6 +463,9 @@ class OptimizationGUI:
         self.function_ax.set_xlabel("Iterations")
         self.function_ax.set_ylabel("Function")
         self.function_ax.grid(True)
+        self.function_ax.ticklabel_format(
+            axis="y", style="sci", scilimits=(0, 0), useOffset=False
+        )
         self.function_canvas.draw()  # Refreshing Plot
 
         # Visualization for Gradient Value
@@ -453,6 +475,9 @@ class OptimizationGUI:
         self.gradient_ax.set_xlabel("Iterations")
         self.gradient_ax.set_ylabel("Gradient")
         self.gradient_ax.grid(True)
+        self.gradient_ax.ticklabel_format(
+            axis="y", style="sci", scilimits=(0, 0), useOffset=False
+        )
         self.gradient_canvas.draw()  # Refreshing Plot
 
 

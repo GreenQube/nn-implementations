@@ -2,7 +2,6 @@
 Module for util functions
 """
 
-import ast
 import numpy as np
 from numpy.linalg import inv
 import os
@@ -82,6 +81,7 @@ def get_test_functions(use_classes: bool = True) -> dict[str, str]:  # NOTE. IMP
 
 def get_line_search_functions():
     """NOTE"""
+    # copy for testing
     get_test_functions_path = os.path.join(
         PROJECT_PATH, "core", "line_search_methods.py"
     )
@@ -160,3 +160,7 @@ def get_array_inv(input_array: np.ndarray):
     else:
         inverse = inv(input_array)
         return inverse
+
+
+def relative_error(array_1: np.ndarray, array_2: np.ndarray):
+    return np.linalg.norm(array_1 - array_2) / 1 + np.linalg.norm(array_1)

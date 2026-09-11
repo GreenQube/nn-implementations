@@ -5,7 +5,7 @@ Module for the modified newton implementations.
 # gradient_line_search.py
 import time
 from core.core import OptimizationMethod
-from utils.utils import get_array_inv
+from utils.utils import get_array_inv, relative_error
 import numpy as np
 from operator import add
 
@@ -44,14 +44,11 @@ class Levenberg_Marquard(OptimizationMethod):
             # Prevent division by zero if derivative is too close to 0
             if np.linalg.norm(grad) < epsilon:
                 print("Derivative is zero. No unique tangent line.")
-                break
-                raise ZeroDivisionError("Derivative is zero. No unique tangent line.")
 
             old_value = val
 
             # Levenberg_Marquard update step
             while True:
-
                 try:
                     next_step = np.linalg.solve(
                         (hess + lmbd * np.abs(np.diag(np.diag(hess)))), grad
@@ -81,8 +78,13 @@ class Levenberg_Marquard(OptimizationMethod):
                     eval_function.set_starting_point(current_point)
 
             val = next_value
-            # Check if the result has converged within our tolerance limit
-            if (abs(next_value - old_value) / (1 + abs(next_value))) < work_precision:
+            if (
+                next_value is not None
+                and relative_error(next_value, old_value) < work_precision
+            ):
+                print(
+                    f"Stopped because of a small change in funcion values ({relative_error(next_value, old_value)} < {work_precision})"
+                )
                 break
 
             eval_function.set_starting_point(next_point)
@@ -151,7 +153,7 @@ class Levenberg(OptimizationMethod):
                         (hess + lmbd * np.eye(len(starting_point))), grad
                     )
                 except np.linalg.LinAlgError:
-                    lmbd = min(lam_mul * lmbd, lmbd_max)
+                    lmbd = min(10 * lmbd, lmbd_max)
 
                     if lmbd == lmbd_max:
                         break
@@ -186,8 +188,13 @@ class Levenberg(OptimizationMethod):
 
             val = next_value
 
-            # Check if the result has converged within our tolerance limit
-            if (abs(next_value - old_val) / (1 + abs(next_value))) < work_precision:
+            if (
+                next_value is not None
+                and relative_error(next_value, old_val) < work_precision
+            ):
+                print(
+                    f"Stopped because of a small change in funcion values ({relative_error(next_value, old_val)} < {work_precision})"
+                )
                 break
 
             if iter < max_iter - 1:

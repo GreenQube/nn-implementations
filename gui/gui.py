@@ -77,6 +77,7 @@ def label_row(
     label_1: str,
     label_2: str,
     grid_params: dict[str, str],
+    columnspan: int | None = None,
 ):
     """NOTE."""
     if "sticky" not in grid_params:
@@ -89,6 +90,9 @@ def label_row(
             pass
         else:
             grid_2_params[key] = value
+
+    if columnspan is not None:
+        grid_2_params["columnspan"] = columnspan
 
     # Set Lable
     gui_label_1 = tk.Label(root, text=label_1)
@@ -112,55 +116,6 @@ def set_row_value(row, value):
 
 def set_multiple_row_values(row_value_pairs: list[tuple]):
     return [set_row_value(rv_pair[0], rv_pair[1]) for rv_pair in row_value_pairs]
-
-
-def check_box(root, checkbox_gui_params, gui_config, grid_elements):
-    def toggle_widget():
-        # .get() returns 1 if checked, 0 if unchecked
-        if check_var.get() == 1:
-            my_label.grid(row=1, column=0, pady=10)  # Show
-        else:
-            for grid_element in grid_elements:
-                grid_element.grid_forget()  # Hide
-
-    # 1. Checkbox and its variable
-    check_var = tk.IntVar()
-    checkbox = tk.Checkbutton(
-        root, text="Show Params", variable=check_var, command=toggle_widget
-    )
-    checkbox.grid(row=6, column=0, padx=10, pady=10)
-
-    # line_search_label, line_search_dropdown = combobox_row(
-    #     root=root,
-    #     label=gui_config["select"][0],
-    #     grid_params=gui_config["select"][1],
-    # )
-    # # Line search parameters
-    # beta_label, beta_entry = insert_row(
-    #     root=root,
-    #     label=gui_config["beta"][0],
-    #     grid_params=gui_config["beta"][1],
-    # )
-    # start_point_label, start_point_entry = insert_row(
-    #     root=root,
-    #     label=gui_config["starting_point"][0],
-    #     grid_params=gui_config["starting_point"][1],
-    # )
-    # m_label, m_entry = insert_row(
-    #     root=root,
-    #     label=gui_config["m"][0],
-    #     grid_params=gui_config["m"][1],
-    # )
-    # sigma_label, sigma_entry = insert_row(
-    #     root=root,
-    #     label=gui_config["sigma"][0],
-    #     grid_params=gui_config["sigma"][1],
-    # )
-    # rho_label, rho_entry = insert_row(
-    #     root=root,
-    #     label=gui_config["rho"][0],
-    #     grid_params=gui_config["rho"][1],
-    # )
 
 
 class ParameterForm(tk.Frame):
@@ -279,13 +234,13 @@ class ScrollableFrame(tk.Frame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        # This is the frame your real widgets get placed on
+        # Frame/Window for all widgets and rows/values of rows
         self.body = tk.Frame(self.canvas)
         self._body_id = self.canvas.create_window((0, 0), window=self.body, anchor="nw")
 
         # Keep scroll region in sync with content size
         self.body.bind("<Configure>", self._on_body_configure)
-        self.canvas.bind("<Configure>", self._on_canvas_configure)
+        # self.canvas.bind("<Configure>", self._on_canvas_configure)
 
         # Mouse wheel scrolling (Windows/Mac/Linux variants)
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)  # Win/Mac
@@ -295,7 +250,9 @@ class ScrollableFrame(tk.Frame):
     def _on_body_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-    def _on_canvas_configure(self, event):
+    def _on_canvas_configure(
+        self, event
+    ):  # NOTE. Do I even need this since I can't make it work
         # Optional: uncomment to make body always at least as wide as canvas
         # self.canvas.itemconfig(self._body_id, width=event.width)
         pass
@@ -306,62 +263,3 @@ class ScrollableFrame(tk.Frame):
     def _on_mousewheel_linux(self, event):
         direction = -1 if event.num == 4 else 1
         self.canvas.yview_scroll(direction, "units")
-
-
-def make_responsive(container, max_row=None, max_col=None):
-    """
-    Makes an existing grid-based layout resize with the window,
-    WITHOUT touching the code that created the widgets.
-
-    Call this once, after your GUI class has finished building all
-    its widgets on `container` (e.g. after `OptimizationGUI(...)`).
-
-        app = OptimizationGUI(root, gui_config, ...)
-        make_responsive(root)   # <-- add this one line
-
-    What it does:
-      1. Scans every widget already gridded onto `container`
-         (and its child frames, recursively) and re-applies
-         sticky="nsew" so each widget stretches to fill its cell.
-      2. Configures every used row/column in `container` (and its
-         sub-frames) with weight=1 so they grow/shrink proportionally
-         instead of staying a fixed pixel size.
-
-    This does NOT change widget creation code or grid_params values,
-    it only adjusts stickiness/weight after the fact.
-    """
-    _apply_sticky_recursive(container)
-    _apply_weights_recursive(container)
-
-
-def _apply_sticky_recursive(widget):
-    for child in widget.winfo_children():
-        try:
-            info = child.grid_info()
-            if info:  # only touch widgets placed with .grid()
-                child.grid_configure(sticky="nsew")
-        except tk.TclError:
-            pass
-        # Recurse into frames/containers so nested layouts also stretch
-        if child.winfo_children():
-            _apply_sticky_recursive(child)
-
-
-def _apply_weights_recursive(widget):
-    info_list = []
-    for child in widget.winfo_children():
-        info = child.grid_info()
-        if info:
-            info_list.append(info)
-
-    rows = {int(i["row"]) for i in info_list if "row" in i}
-    cols = {int(i["column"]) for i in info_list if "column" in i}
-
-    for r in rows:
-        widget.grid_rowconfigure(r, weight=1)
-    for c in cols:
-        widget.grid_columnconfigure(c, weight=1)
-
-    for child in widget.winfo_children():
-        if child.winfo_children():
-            _apply_weights_recursive(child)
