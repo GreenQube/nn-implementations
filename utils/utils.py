@@ -83,7 +83,7 @@ def get_line_search_functions():
     """NOTE"""
     # copy for testing
     get_test_functions_path = os.path.join(
-        PROJECT_PATH, "core", "line_search_methods.py"
+        PROJECT_PATH, "core", "line_search_functions.py"
     )
     ls_methods = get_classes_from_file(get_test_functions_path)
     if "TestFunction" in ls_methods.keys():

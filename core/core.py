@@ -75,7 +75,7 @@ class TestFunction:
         raise NotImplementedError("This method should be overridden")
 
 
-class LineStepFunction:
+class LineSearchFunction:
     def __init__(self, parameters: dict[str, str]):
         temp_params = {}
         for k, v in parameters.items():

@@ -5,10 +5,10 @@ Module for line search methods.
 from operator import add
 import math
 import numpy as np
-from core.core import TestFunction, LineStepFunction
+from core.core import TestFunction, LineSearchFunction
 
 
-class Backtrack(LineStepFunction):
+class Backtrack(LineSearchFunction):
     """
     Armijo Backtrack Line Search Method used to calculate a step parameter.
 
@@ -17,7 +17,7 @@ class Backtrack(LineStepFunction):
             when the decrease condition is not satisfied.
         sigma: Sufficient decrease parameter controlling how strict
             the decrease condition is.
-        **kwargs: Additional parameters passed to the base LineStepFunction.
+        **kwargs: Additional parameters passed to the base LineSearchFunction.
     """
 
     def __init__(self, beta=0.3, sigma=1e-4, **kwargs):
@@ -97,7 +97,7 @@ class Backtrack(LineStepFunction):
         return new_sp
 
 
-class Armijo(LineStepFunction):
+class Armijo(LineSearchFunction):
     """
     Armijo Line Search Method used to calculate a step parameter.
 
@@ -111,7 +111,7 @@ class Armijo(LineStepFunction):
             the decrease condition is.
         beta: Fallback shrink factor, used only if interpolation produces
             a degenerate or invalid step.
-        **kwargs: Additional parameters passed to the base LineStepFunction.
+        **kwargs: Additional parameters passed to the base LineSearchFunction.
     """
 
     def __init__(self, sigma=1e-4, beta=0.3, **kwargs):
@@ -231,7 +231,7 @@ class Armijo(LineStepFunction):
         return (-b + math.sqrt(radicand)) / (3 * a)
 
 
-class Goldstein(LineStepFunction):
+class Goldstein(LineSearchFunction):
     """
     Goldstein Line Search Method used to calculate a step parameter.
 
@@ -243,7 +243,7 @@ class Goldstein(LineStepFunction):
         gamma: Expansion factor used to grow the step when the lower
             bound is violated and no finite upper bracket has been
             found yet.
-        **kwargs: Additional parameters passed to the base LineStepFunction.
+        **kwargs: Additional parameters passed to the base LineSearchFunction.
     """
 
     def __init__(self, alpha=1e-4, gamma=1.1, **kwargs):
@@ -311,7 +311,7 @@ class Goldstein(LineStepFunction):
         return step, evaluation_numbers
 
 
-class Wolfe(LineStepFunction):
+class Wolfe(LineSearchFunction):
     """
     Wolfe Line Search Method used to calculate a step parameter.
 
@@ -320,7 +320,7 @@ class Wolfe(LineStepFunction):
             of the Armijo (decrease) condition.
         c2: Curvature condition parameter controlling the strictness
             of the curvature condition.
-        **kwargs: Additional parameters passed to the base LineStepFunction.
+        **kwargs: Additional parameters passed to the base LineSearchFunction.
     """
 
     def __init__(self, c1=1e-4, c2=0.9, **kwargs):
