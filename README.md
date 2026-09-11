@@ -67,3 +67,4 @@ https://github.com/markomil/vilin-numerical-optimization/tree/master
 - Automatic Parameter Optimization
 - Better Visuals
 - Fixing gradient and hessian calculation counter bug
+- More Robust Documentation.
