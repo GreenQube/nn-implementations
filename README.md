@@ -40,9 +40,30 @@ If one wants to add a whole new Method Group, they will have to make a file in t
 Afterwards see the section on Adding New Methods to Existing Method Groups.
 
 
-## Inspiration/Mimic
+## Inspirations
 
 This project mimics/follows and is supported by the more robust MATLAB equivalent found on the following repo:
 https://github.com/markomil/vilin-numerical-optimization/tree/master
 
 
+## Improvements For The Future:
+
+#### More Test Functions:
+- Generalized Rosenbrock
+- Diagonal 2
+- Staircase 1
+- Staircase 2
+- COSINE
+- SINE
+
+#### More Methods
+- SR1
+- FletcherReeves
+- ScalarCorrection
+- GoldsteinPrice
+
+#### Other/Miscelanious
+- Fixing/Readjusting bug issues connected to the GUI
+- Automatic Parameter Optimization
+- Better Visuals
+- Fixing gradient and hessian calculation counter bug
