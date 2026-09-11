@@ -44,6 +44,7 @@ class Levenberg_Marquard(OptimizationMethod):
             # Prevent division by zero if derivative is too close to 0
             if np.linalg.norm(grad) < epsilon:
                 print("Derivative is zero. No unique tangent line.")
+                break
 
             old_value = val
 
@@ -51,7 +52,8 @@ class Levenberg_Marquard(OptimizationMethod):
             while True:
                 try:
                     next_step = np.linalg.solve(
-                        (hess + lmbd * np.abs(np.diag(np.diag(hess)))), grad
+                        (hess + lmbd * (np.abs(np.diag(np.diag(hess))) + 0.01 * n_eye)),
+                        grad,
                     )
                 except np.linalg.LinAlgError:
                     lmbd *= beta
